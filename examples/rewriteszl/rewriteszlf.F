@@ -3,7 +3,7 @@
 !  and write a new .szplt file to the name provided as the second
 !  command-line argument.
 !
-      ! Convenience to extract a returned C string to a FOrtran string
+      ! Convenience to extract a returned C string to a Fortran string
       subroutine copyCharArrayToString(charArray, length, string)
       use iso_c_binding, only : C_NULL_CHAR, c_ptr, c_f_pointer
       implicit none
@@ -52,6 +52,8 @@
       integer(c_int32_t) :: fileFormat = 1 ! .szplt
       integer(c_int32_t) :: outputDebugInfo = 1
       integer(c_int32_t) :: inputZone, numZones, outputZone
+      integer(c_int32_t) :: numSections
+      integer(c_int32_t) :: section
       integer(c_int32_t) :: zoneType
       integer(c_int32_t) :: strandID, faceNeighborMode
       integer(c_int32_t) :: shareConnectivityFromZone
@@ -73,16 +75,22 @@
       integer(c_int32_t), allocatable :: int32Values(:)
       integer(c_int32_t), allocatable :: faceConnections32(:)
       integer(c_int32_t), allocatable :: varTypes(:)
+      integer(c_int32_t), allocatable :: cellShape(:)
+      integer(c_int32_t), allocatable :: gridOrder(:)
+      integer(c_int32_t), allocatable :: basisFnc(:)
+      integer(c_int32_t), allocatable :: numNodesPerCell(:)
       integer(c_int32_t), allocatable :: passiveVarList(:)
       integer(c_int32_t), allocatable :: valueLocation(:)
       integer(c_int32_t), allocatable :: shareVarFromZone(:)
       integer(c_int32_t), allocatable :: nodeMap32(:)
       integer(c_int32_t), allocatable :: numSegPts(:)
       integer(c_int64_t) :: numValues, numFaceValues
+      integer(c_int64_t) :: numValuesInSection
       integer(c_int64_t) :: numFaceConnections
       integer(c_int64_t) :: iMax, jMax, kMax
       integer(c_int64_t), allocatable :: faceConnections64(:)
       integer(c_int64_t), allocatable :: nodeMap64(:)
+      integer(c_int64_t), allocatable :: numElemsInSection(:)
       real(c_float), allocatable :: floatValues(:)
       real(c_double) :: solutionTime
       real(c_double) :: x, y, z, patternLength, lineThickness
@@ -192,11 +200,41 @@
      &            shareConnectivityFromZone, numFaceConnections,
      &            faceNeighborMode, outputZone)
           else
-              i = tecZoneCreateFE(outputFileHandle, zoneTitle, zoneType,
-     &            iMax, jMax, varTypes, shareVarFromZone,
-     &            valueLocation, passiveVarList,
-     &            shareConnectivityFromZone, numFaceConnections,
-     &            faceNeighborMode, outputZone)
+              if (zoneType == 8) then
+                  i = tecZoneGetNumSections(inputFileHandle, inputZone, 
+     &                numSections)
+                  allocate(cellShape(numSections))
+                  allocate(gridOrder(numSections))
+                  allocate(basisFnc(numSections))
+                  allocate(numElemsInSection(numSections))
+                  allocate(numNodesPerCell(numSections))
+ 
+                  do section = 1, numSections
+                      i = tecZoneGetSectionMetrics(inputFileHandle,
+     &                    inputZone, section,
+     &                    cellShape(section), gridOrder(section),
+     &                    basisFnc(section), numElemsInSection(section),
+     &                    numNodesPerCell(section))
+                  enddo
+
+                  i = tecZoneCreateFEMixed(outputFileHandle, zoneTitle, 
+     &                  iMax, numSections, cellShape, gridOrder, 
+     &                  basisFnc, numElemsInSection, varTypes, 
+     &                  shareVarFromZone, valueLocation, passiveVarList,
+     &                  shareConnectivityFromZone, numFaceConnections,
+     &                  faceNeighborMode, outputZone)
+               
+                  deallocate(cellShape)
+                  deallocate(gridOrder)
+                  deallocate(basisFnc)
+                  deallocate(numNodesPerCell)
+              else
+                  i = tecZoneCreateFE(outputFileHandle, zoneTitle, 
+     &                zoneType, iMax, jMax, varTypes, 
+     &                shareVarFromZone, valueLocation, passiveVarList,
+     &                shareConnectivityFromZone, numFaceConnections,
+     &                faceNeighborMode, outputZone)
+             endif
           endif
 
           i = tecZoneGetSolutionTime(inputFileHandle, inputZone,
@@ -288,8 +326,20 @@
           ! Retrieve zone node map, if any, and send to the output file
           if (zoneType /= 0 .and.
      &        shareConnectivityFromZone == 0) then
-              i = tecZoneNodeMapGetNumValues(inputFileHandle,
-     &            inputZone, jMax, numValues)
+             if (zoneType == 8) then
+                  numValues = 0
+                  do section = 1, numSections
+                      i = tecZoneSectionNodeMapGetNumValues(
+     &                    inputFileHandle, inputZone, section,
+     &                    numElemsInSection(section),
+     &                    numValuesInSection)
+                      numValues = numValues + numValuesInSection            
+                  enddo
+                  deallocate(numElemsInSection)
+             else
+                  i = tecZoneNodeMapGetNumValues(inputFileHandle,
+     &                inputZone, jMax, numValues)
+             endif
               i = tecZoneNodeMapIs64Bit(inputFileHandle, inputZone,
      &            is64Bit)
               if (is64Bit == 1) then

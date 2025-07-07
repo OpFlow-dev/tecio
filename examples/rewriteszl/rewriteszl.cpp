@@ -58,16 +58,6 @@ int main(int argc, char** argv)
         int32_t numZones;
         i = tecDataSetGetNumZones(inputFileHandle, &numZones);
 
-        int32_t isDouble = 0;
-        int32_t const FieldDataType_Double = 2; // ...TecUtil types are not available to TecIO so redefine
-        if (numZones > 0)
-        {
-            int32_t type;
-            i = tecZoneVarGetType(inputFileHandle, 1, 1, &type);
-            if (type == FieldDataType_Double)
-                isDouble = 1;
-        }
-
         // Begin writing a new .szplt file
         int32_t fileFormat = 1; // .szplt
         int32_t outputDebugInfo = 1;
@@ -82,11 +72,7 @@ int main(int argc, char** argv)
             // Retrieve zone characteristics
             int32_t zoneType;
             i = tecZoneGetType(inputFileHandle, inputZone, &zoneType);
-#if 0 // TODO(HOE): add TECIO read functions for getting section metrics
-            if (zoneType == 6 || zoneType == 7)
-#else
-            if (zoneType == 6 || zoneType == 7 || zoneType == 8)
-#endif
+            if (zoneType == ZONETYPE_FEPOLYGON || zoneType == ZONETYPE_FEPOLYHEDRON)
                 throw std::runtime_error("Unsupported zone type.");
 
             char* zoneTitle = NULL;
@@ -117,31 +103,43 @@ int main(int argc, char** argv)
             i = tecZoneFaceNbrGetNumConnections(inputFileHandle, inputZone, &numFaceConnections);
 
             int32_t outputZone;
-            if (zoneType == 0)
+            int32_t numSections{0};
+            if (zoneType == ZONETYPE_ORDERED)
             {
                 i = tecZoneCreateIJK(outputFileHandle, zoneTitle, iMax, jMax, kMax, varTypes.data(),
                         shareVarFromZone.data(), valueLocation.data(), passiveVarList.data(),
                         shareConnectivityFromZone, numFaceConnections, faceNeighborMode, &outputZone);
             }
-#if 0 // TODO(HOE): add TECIO read functions for getting section metrics
-            else if (zoneType == 8)
+            else if (zoneType == ZONETYPE_FEMIXED)
             {
-                int32_t const numSections = 0;
                 i = tecZoneGetNumSections(inputFileHandle, inputZone, &numSections);
-                std::vector<int32_t> cellShapePerSec(numSections)
-                std::vector<int32_t> gridOrderPerSec(numSections)
-                std::vector<int32_t> basisFnPerSec(numSections)
-                std::vector<int64_t> numElemsPerSec(numSections)
-                i = tecZoneGetSectionMetrics(inputFileHandle, inputZone,
-                        cellShapePerSec.data(), gridOrderPerSec.data(),
-                        basisFnPerSec.data(), numElemsPerSec.data());
+                std::vector<int32_t> cellShapePerSec;
+                std::vector<int32_t> gridOrderPerSec;
+                std::vector<int32_t> basisFnPerSec;
+                std::vector<int64_t> numElemsPerSec;
+                std::vector<int64_t> numNodesPerCellSec;
+                for (int32_t section{1}; section <= numSections; ++section)
+                {    
+                    int32_t cellShape{0};
+                    int32_t gridOrder{0};
+                    int32_t basisFunction{0};
+                    int64_t numElemsInSection{0};
+                    int32_t numNodesPerCell{0};
+                    i = tecZoneGetSectionMetrics(inputFileHandle, inputZone, section,
+                            &cellShape, &gridOrder,
+                            &basisFunction, &numElemsInSection, &numNodesPerCell);
+                    cellShapePerSec.push_back(cellShape);
+                    gridOrderPerSec.push_back(gridOrder);
+                    basisFnPerSec.push_back(basisFunction);
+                    numElemsPerSec.push_back(numElemsInSection);
+                    numNodesPerCellSec.push_back(numNodesPerCell);
+                }
 
                 i = tecZoneCreateFEMixed(outputFileHandle, zoneTitle,iMax, numSections,
-                        cellShapePerSec, gridOrderPerSec, basisFnPerSec, numElemsPerSec,
+                        cellShapePerSec.data(), gridOrderPerSec.data(), basisFnPerSec.data(), numElemsPerSec.data(),
                         varTypes.data(), shareVarFromZone.data(), valueLocation.data(), passiveVarList.data(),
                         shareConnectivityFromZone, numFaceConnections, faceNeighborMode, &outputZone);
             }
-#endif
             else
             {
                 i = tecZoneCreateFE(outputFileHandle, zoneTitle, zoneType, iMax, jMax, varTypes.data(),
@@ -238,10 +236,35 @@ int main(int argc, char** argv)
             }
 
             // Retrieve zone node map, if any, and send to the output file
-            if (zoneType != 0 && shareConnectivityFromZone == 0)
+            if (zoneType != ZONETYPE_ORDERED && shareConnectivityFromZone == 0)
             {
-                int64_t numValues;
-                i = tecZoneNodeMapGetNumValues(inputFileHandle, inputZone, jMax, &numValues);
+                int64_t numValues{0};
+                if (zoneType == ZONETYPE_FEMIXED)
+                {
+                    int32_t inputSection{1};
+                    int32_t numSections{1};
+                    i = tecZoneGetNumSections(inputFileHandle, inputZone, &numSections);
+                    for (int32_t inputSection{1}; inputSection <= numSections; ++inputSection)
+                    {
+                        int32_t cellShape{0};
+                        int32_t gridOrder{0};
+                        int32_t basisFunction{0};
+                        int64_t numElemsInSection{0};
+                        int32_t numNodesPerCell{0};
+                        i = tecZoneGetSectionMetrics(
+                            inputFileHandle, inputZone, inputSection, &cellShape, &gridOrder,
+                            &basisFunction,&numElemsInSection, &numNodesPerCell);
+                        int64_t numValuesInSection{0};
+                        i = tecZoneSectionNodeMapGetNumValues(
+                            inputFileHandle, inputZone, inputSection, numElemsInSection,
+                            &numValuesInSection);
+                        numValues += numValuesInSection;
+                    }
+                }
+                else
+                {
+                    i = tecZoneNodeMapGetNumValues(inputFileHandle, inputZone, jMax, &numValues);
+                }
                 int32_t is64Bit;
                 i = tecZoneNodeMapIs64Bit(inputFileHandle, inputZone, &is64Bit);
                 if (is64Bit)
@@ -254,7 +277,7 @@ int main(int argc, char** argv)
                 {
                     std::vector<int32_t> nodeMap(numValues);
                     i = tecZoneNodeMapGet(inputFileHandle, inputZone, 1, jMax, &nodeMap[0]);
-                    i = tecZoneNodeMapWrite32(outputFileHandle, outputZone, 0, 1, numValues, &nodeMap[0]);
+                    i = tecZoneNodeMapWrite32(outputFileHandle, outputZone, 0, 1, numValues, &nodeMap[0]);                    
                 }
             }
 
@@ -297,6 +320,7 @@ int main(int argc, char** argv)
         }
 
         // Var aux data
+
         for (int32_t var = 1; var <= numVars; ++var)
         {
             int32_t numItems;
@@ -314,6 +338,7 @@ int main(int argc, char** argv)
 
         // Geometries
         int32_t numGeoms;
+
         i = tecGeomGetNumGeoms(inputFileHandle, &numGeoms);
         for (int32_t geom = 1; geom <= numGeoms; ++geom)
         {

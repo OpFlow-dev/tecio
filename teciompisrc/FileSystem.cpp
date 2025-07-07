@@ -1,5 +1,6 @@
 #include "FileSystem.h"
 #include "ThirdPartyHeadersBegin.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -52,8 +53,19 @@ homedir = std::string("/home/") + user;
  #elif defined(__APPLE__)
 homedir = std::string("/Users/") + user;
  #endif
-} } return homedir; }
+} } return homedir; } void convertPathDelimitersForOS(std::string& path) { std::replace(path.begin(), path.end()
+ #if defined MSWIN
+,'/'
+ #else
+,'\\'
+ #endif
+ #if defined MSWIN
+,'\\'
+ #else
+,'/'
+ #endif
+); }
  #if !defined(NO_THIRD_PARTY_LIBS)
-std::pair<boost::filesystem::file_status,boost::system::error_code> fileStatus( boost::filesystem::path const& filePath, bool                           resolveSymlinks) { boost::system::error_code errorCode{}; auto const fileStatus{resolveSymlinks ? boost::filesystem::status(filePath, errorCode) : boost::filesystem::symlink_status(filePath, errorCode) }; return {fileStatus,errorCode}; } bool fileExists(boost::filesystem::path const& filePath) { REQUIRE("filepath can be valid or empty"); auto const& [status,errorCode] = fileStatus(filePath, true); return !errorCode && boost::filesystem::exists(status) && !boost::filesystem::is_directory(status); } bool dirExists(boost::filesystem::path const& dirPath) { REQUIRE("dirpath can be anything - including empty"); auto const& [status,errorCode] = fileStatus(dirPath, true); return !errorCode && boost::filesystem::exists(status) && boost::filesystem::is_directory(status); } bool isFileOrDirWritable(boost::filesystem::path const& path) { auto const isFileReadWritable{[](boost::filesystem::path filePath, bool ___3331){ auto filename{filePath.make_preferred().string()}; auto* ___1479{fileOpen(filename, "a+")}; bool const isReadWritable{___1479 != nullptr}; if (isReadWritable) fclose(___1479); if (___3331) (void)std::remove(filename.c_str()); return isReadWritable; }}; auto const& [pathStatus,pathErrorCode]{fileStatus(path, true)}; if (!pathErrorCode && boost::filesystem::exists(pathStatus)) { if (boost::filesystem::is_directory(pathStatus)) { boost::system::error_code uniquePathErrorCode{}; auto const tempFilePath{boost::filesystem::unique_path( path/"%%%%-%%%%-%%%%-%%%%", uniquePathErrorCode)}; return !uniquePathErrorCode && isFileReadWritable(tempFilePath, true); } else { return isFileReadWritable(path, false); } } else { return isFileReadWritable(path, true); } }
+boost::filesystem::path makeAbsolute(boost::filesystem::path const& path, boost::filesystem::path const& basePath) { REQUIRE(!path.empty()); REQUIRE(!basePath.empty()); REQUIRE(boost::filesystem::is_directory(basePath)); return path.is_absolute() ? path : basePath / path; } std::pair<boost::filesystem::file_status,boost::system::error_code> fileStatus( boost::filesystem::path const& filePath, bool                           resolveSymlinks) { boost::system::error_code errorCode{}; auto const fileStatus{resolveSymlinks ? boost::filesystem::status(filePath, errorCode) : boost::filesystem::symlink_status(filePath, errorCode) }; return {fileStatus,errorCode}; } bool fileExists(boost::filesystem::path const& filePath) { REQUIRE("filepath can be valid or empty"); auto const& [status,errorCode] = fileStatus(filePath, true); return !errorCode && boost::filesystem::exists(status) && !boost::filesystem::is_directory(status); } bool dirExists(boost::filesystem::path const& dirPath) { REQUIRE("dirpath can be anything - including empty"); auto const& [status,errorCode] = fileStatus(dirPath, true); return !errorCode && boost::filesystem::exists(status) && boost::filesystem::is_directory(status); } bool isFileOrDirWritable(boost::filesystem::path const& path) { auto const isFileReadWritable{[](boost::filesystem::path filePath, bool ___3331){ auto filename{filePath.make_preferred().string()}; auto* ___1479{fileOpen(filename, "a+")}; bool const isReadWritable{___1479 != nullptr}; if (isReadWritable) fclose(___1479); if (___3331) (void)std::remove(filename.c_str()); return isReadWritable; }}; auto const& [pathStatus,pathErrorCode]{fileStatus(path, true)}; if (!pathErrorCode && boost::filesystem::exists(pathStatus)) { if (boost::filesystem::is_directory(pathStatus)) { boost::system::error_code uniquePathErrorCode{}; auto const tempFilePath{boost::filesystem::unique_path( path/"%%%%-%%%%-%%%%-%%%%", uniquePathErrorCode)}; return !uniquePathErrorCode && isFileReadWritable(tempFilePath, true); } else { return isFileReadWritable(path, false); } } else { return isFileReadWritable(path, true); } }
  #endif
 }}

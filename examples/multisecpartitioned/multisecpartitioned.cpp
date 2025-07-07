@@ -84,12 +84,12 @@ struct GeneratedData
     std::vector<std::vector<std::vector<int32_t>>> connectivity; // [partition][section][nodesPerElem[section]*numElems[partition][section]]
 
     /**
-     * Generates the fabricated data for the example. This example contains 2 K rows of 4x4
-     * hexahedrons in a rectilinear pattern stacked on top of one another with a third K row of 2x2
-     * hexahedrons centered at the top. The top 4 corners of the mesh are fitted with pyramids to
-     * chamfer between the outer corners of the lower 4x4 mesh to the upper 2x2 mesh. Similarly two
-     * prism's on each top edge between the pyramids chamfer the side of the 4x4 to the top of the
-     * 2x2 mesh.
+     * Generates the fabricated data for the example. This example contains 2 K-rows of 4x4
+     * hexahedrons in a rectilinear pattern stacked on top of one another with another K-row of 2x2
+     * hexahedrons centered at the top and bottom. The top and bottom 4 corners of the mesh are fitted
+     * with pyramids to chamfer between the outer corners of the inner 4x4 mesh to the outer 2x2 mesh.
+     * Similarly two prisms on each top and bottom edge between the pyramids chamfer the side of the
+     * 4x4 to the 2x2 meshes.
      */
     explicit GeneratedData(
         #if defined TECIOMPI
@@ -110,8 +110,8 @@ struct GeneratedData
         , faceNeighborMode{0}
         , shareConnectivityFromZone{0}
         , numNodes{{
-              75, // partition 1 provides data for part of section 1, needing 75 nodes
-              34, // partition 2 provides data for part of section 1, and all of section 2 and 3, needing 9 nodes and 25 shared with partition 1 (see ghost nodes below)
+              84, // partition 1 needs 84 nodes
+              34, // partition 2 needs 9 nodes plus 25 shared with partition 1 (see ghost nodes below)
           }}
         , numGhostNodes{{
               0,  // partition 1 owns all the shared nodes at the interface between the two partitions
@@ -135,7 +135,7 @@ struct GeneratedData
         , gridOrders(numSections, 1)
         , basisFns(numSections, 0/*Lagrangian*/)
         , numElems{
-            { 32, 0, 0 }, // partition 1: 32 hexahedrons, 0 pyramids, and 0 prisms
+            { 36, 4, 8 }, // partition 1: 36 hexahedrons, 4 pyramids, and 8 prisms
             {  4, 4, 8 }  // partition 2:  4 hexahedrons, 4 pyramids, and 8 prisms
           }
         , nodesPerElem{{ 8, 5, 6 }}
@@ -161,7 +161,7 @@ struct GeneratedData
         // this toy generation code is not very flexible and will not work with different ijk dimensions
         , iDim{5}
         , jDim{5}
-        , kDim{4}
+        , kDim{5}
         , ijDim{iDim*jDim}
         , iCellDim{iDim-1}
         , jCellDim{jDim-1}
@@ -193,13 +193,13 @@ struct GeneratedData
         for (int32_t k{0}; k < kDim; ++k)
         {
             /*
-             * The last row of nodes has one less i and j on all boundaries for
+             * The first and last row of nodes has one less i and j on all boundaries for
              * the prism, and pyramids to neck down from a 4x4 wall to a 2x2 wall.
              */
-            bool const isLastKPlane{k == kCellDim};
+            bool const isReducedKPlane{k == 0 || k == kCellDim};
             bool const isLastKPlaneOfFirstPtn{k == kCellDim-1};
-            int32_t const ptn{isLastKPlane ? 1 : 0};
-            int32_t const ijAdjust{isLastKPlane ? 1 : 0};
+            int32_t const ptn{k == kCellDim ? 1 : 0};
+            int32_t const ijAdjust{isReducedKPlane ? 1 : 0};
             for (int32_t j{0+ijAdjust}; j < jDim-ijAdjust; ++j)
             {
                 for (int32_t i{0+ijAdjust}; i < iDim-ijAdjust; ++i)
@@ -235,9 +235,9 @@ struct GeneratedData
         // generate the cell centered field data for section 1 of the first and second partitions: hexahedrons
         for (int32_t k{0}; k < kCellDim; ++k) // -1: don't include the last k-plane
         {
-            bool const isLastKCellPlane{k == kCellDim-1};
-            int32_t const ptn{isLastKCellPlane ? 1 : 0};
-            int32_t const ijAdjust{isLastKCellPlane ? 1 : 0}; // not including cell on edges
+            bool const isReducedKCellPlane{k == 0 || k == kCellDim-1};
+            int32_t const ptn{k == kCellDim-1 ? 1 : 0};
+            int32_t const ijAdjust{isReducedKCellPlane ? 1 : 0}; // not including cell on edges
             for (int32_t j{0+ijAdjust}; j < jCellDim-ijAdjust; ++j) // -1: don't include the last j-plane
             {
                 for (int32_t i{0+ijAdjust}; i < iCellDim-ijAdjust; ++i) // -1: don't include the last i-plane
@@ -247,59 +247,96 @@ struct GeneratedData
             }
         }
 
-        // generate the cell centered field data for section 2 of the second partition: pyramids
-        ccFieldData[1][1].push_back(static_cast<float>(0*0 + 0*0 + 2*2));
-        ccFieldData[1][1].push_back(static_cast<float>(3*3 + 0*0 + 2*2));
-        ccFieldData[1][1].push_back(static_cast<float>(0*0 + 3*3 + 2*2));
-        ccFieldData[1][1].push_back(static_cast<float>(3*3 + 3*3 + 2*2));
+        // generate the cell centered field data for section 2: pyramids
+        ccFieldData[0][1].push_back(static_cast<float>(0*0 + 0*0 + 0*0));
+        ccFieldData[0][1].push_back(static_cast<float>(3*3 + 0*0 + 0*0));
+        ccFieldData[0][1].push_back(static_cast<float>(0*0 + 3*3 + 0*0));
+        ccFieldData[0][1].push_back(static_cast<float>(3*3 + 3*3 + 0*0));
 
-        // generate the cell centered field data for section 3 of the second partition: prisms
-        ccFieldData[1][2].push_back(static_cast<float>(1*1 + 0*0 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(2*2 + 0*0 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(0*0 + 1*1 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(3*3 + 1*1 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(0*0 + 2*2 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(3*3 + 2*2 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(1*1 + 3*3 + 2*2));
-        ccFieldData[1][2].push_back(static_cast<float>(2*2 + 3*3 + 2*2));
+        ccFieldData[1][1].push_back(static_cast<float>(0*0 + 0*0 + 3*3));
+        ccFieldData[1][1].push_back(static_cast<float>(3*3 + 0*0 + 3*3));
+        ccFieldData[1][1].push_back(static_cast<float>(0*0 + 3*3 + 3*3));
+        ccFieldData[1][1].push_back(static_cast<float>(3*3 + 3*3 + 3*3));
+
+        // generate the cell centered field data for section 3: prisms
+        ccFieldData[0][2].push_back(static_cast<float>(1*1 + 0*0 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(2*2 + 0*0 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(0*0 + 1*1 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(3*3 + 1*1 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(0*0 + 2*2 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(3*3 + 2*2 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(1*1 + 3*3 + 0*0));
+        ccFieldData[0][2].push_back(static_cast<float>(2*2 + 3*3 + 0*0));
+
+        ccFieldData[1][2].push_back(static_cast<float>(1*1 + 0*0 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(2*2 + 0*0 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(0*0 + 1*1 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(3*3 + 1*1 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(0*0 + 2*2 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(3*3 + 2*2 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(1*1 + 3*3 + 3*3));
+        ccFieldData[1][2].push_back(static_cast<float>(2*2 + 3*3 + 3*3));
 
         /*
-         * Generate connectivity for section 1 of the first partition
-         * and section 1 through 3 for the second partition.
+         * Generate connectivity both partitions.
          */
         // generate the 32 bit connectivity for section 1 of the first and second partitions: hexahedrons
         for (int32_t k{0}; k < kCellDim; ++k) // skip k-plane
         {
-            bool const isLastKCellPlane{k == kCellDim-1};
-            int32_t const ptn{isLastKCellPlane ? 1 : 0};
-            int32_t const kCellPlane{isLastKCellPlane ? 0 : k};
-            int32_t const ijCellAdjust{isLastKCellPlane ? 1 : 0};
+            bool const isReducedKCellPlane{k == 0 || k == kCellDim-1};
+            int32_t const ptn{k == kCellDim-1 ? 1 : 0};
+            int32_t const kCellPlane{ptn == 1 ? 0 : k};
+            int32_t const ijCellAdjust{isReducedKCellPlane ? 1 : 0};
+            int32_t const kOffset{ ptn == 1 ? 0 : (k > 0 ? (iDim - 2) * (jDim - 2) + (k > 1 ? (k - 1) * ijDim : 0) : 0) };
+            int32_t const kp1Offset{ ptn == 1 ? ijDim : ((iDim - 2) * (jDim - 2) + k * ijDim) };
+            // The first k-plane has iDim-2 nodes in the i-direction for partition 0, and iDim for partition 1.
+            // The remaining k-planes have iDim nodes in the i-direction for partition 0 and iDim-2 for partition 1.
+            int32_t const kPlaneIDim = ptn == kCellPlane ? (iDim - 2 * ijCellAdjust) : iDim;
+            int32_t const kp1PlaneIDim = ptn == 0 ? iDim : (iDim - 2 * ijCellAdjust);
             for (int32_t j{0+ijCellAdjust}; j < jCellDim-ijCellAdjust; ++j) // skip j-plane
             {
+                int32_t jOffset  { (ptn == 0 ? j - ijCellAdjust : j) * kPlaneIDim };
+                int32_t jp1Offset{ (ptn == 1 ? j - ijCellAdjust : j) * kp1PlaneIDim }; // j offset in the k+1 plane
                 for (int32_t i{0+ijCellAdjust}; i < iCellDim-ijCellAdjust; ++i) // skip i-plane
                 {
+                    int32_t const iOffset{ ptn == 1 ? i : i - ijCellAdjust };
+                    int32_t const ip1Offset{ ptn == 1 ? i - ijCellAdjust : i }; // i offset in the k+1 plane
                     // in our simple example the last partition shares its first 'ijDim' number of nodes with the first partition
                     appendValues(connectivity[ptn][0], {{
-                        (i+1) + (j+0)*iDim + (kCellPlane+0)*ijDim,
-                        (i+2) + (j+0)*iDim + (kCellPlane+0)*ijDim,
-                        (i+2) + (j+1)*iDim + (kCellPlane+0)*ijDim,
-                        (i+1) + (j+1)*iDim + (kCellPlane+0)*ijDim,
-                        (i+1-ijCellAdjust) + (j+0-ijCellAdjust)*(iDim-2*ijCellAdjust) + (kCellPlane+1)*ijDim,
-                        (i+2-ijCellAdjust) + (j+0-ijCellAdjust)*(iDim-2*ijCellAdjust) + (kCellPlane+1)*ijDim,
-                        (i+2-ijCellAdjust) + (j+1-ijCellAdjust)*(iDim-2*ijCellAdjust) + (kCellPlane+1)*ijDim,
-                        (i+1-ijCellAdjust) + (j+1-ijCellAdjust)*(iDim-2*ijCellAdjust) + (kCellPlane+1)*ijDim
+                        1 + iOffset   + jOffset                  + kOffset,
+                        2 + iOffset   + jOffset                  + kOffset,
+                        2 + iOffset   + jOffset   + kPlaneIDim   + kOffset,
+                        1 + iOffset   + jOffset   + kPlaneIDim   + kOffset,
+                        1 + ip1Offset + jp1Offset                + kp1Offset,
+                        2 + ip1Offset + jp1Offset                + kp1Offset,
+                        2 + ip1Offset + jp1Offset + kp1PlaneIDim + kp1Offset,
+                        1 + ip1Offset + jp1Offset + kp1PlaneIDim + kp1Offset
                     }});
                 }
             }
         }
 
-        // generate the connectivity for section 2 of the second partition: pyramids
+        // generate the connectivity for section 2: pyramids
+        appendValues(connectivity[0][1], {{ 11, 10, 15, 16,1}});
+        appendValues(connectivity[0][1], {{ 14, 13,18, 19,3}});
+        appendValues(connectivity[0][1], {{26,25,30,31,7}});
+        appendValues(connectivity[0][1], {{29,28,33,34,9}});
+
         appendValues(connectivity[1][1], {{ 1, 2, 7, 6,26}});
         appendValues(connectivity[1][1], {{ 4, 5,10, 9,28}});
         appendValues(connectivity[1][1], {{16,17,22,21,32}});
         appendValues(connectivity[1][1], {{19,20,25,24,34}});
 
-        // generate the connectivity for section 3 of the second partition: prisms
+        // generate the connectivity for section 3: prisms
+        appendValues(connectivity[0][2], {{ 1, 16,11, 2, 17,12}});
+        appendValues(connectivity[0][2], {{ 2, 17,12, 3, 18,13}});
+        appendValues(connectivity[0][2], {{ 1, 15,16,4,20,21}});
+        appendValues(connectivity[0][2], {{4, 20,21,7,25,26}});
+        appendValues(connectivity[0][2], {{3, 18, 19, 6,23,24}});
+        appendValues(connectivity[0][2], {{6,23,24,9,28,29}});
+        appendValues(connectivity[0][2], {{7,31,26,8,32,27}});
+        appendValues(connectivity[0][2], {{8,32,27,9,33,28}});
+
         appendValues(connectivity[1][2], {{ 2, 7,26, 3, 8,27}});
         appendValues(connectivity[1][2], {{ 3, 8,27, 4, 9,28}});
         appendValues(connectivity[1][2], {{ 7, 6,26,12,11,29}});

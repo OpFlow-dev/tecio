@@ -2,6 +2,9 @@
  #define ALLOC_H
  #if defined __cplusplus
 #include <new>
+ #if defined TRACK_MEMORY_USAGE
+#include <malloc.h>
+ #endif
  #endif
 #include "CodeContract.h"
  #if !defined __cplusplus
@@ -16,7 +19,7 @@
  #endif
  #else
  #ifdef TRACK_MEMORY_USAGE
-extern void ___1934(); extern void ___489(); extern void ___4205(size_t size); extern void ___4207(size_t size); extern void ___4206(); extern void ___4208(); extern void ___1756(size_t* ___2405, size_t* ___2404, size_t* ___2406, size_t* ___2407);
+void printMemoryUsage(char const* context, size_t      sizeChange); void ___1934(); void ___489(); void ___4205(size_t size); void ___4207(size_t size); void ___4206(); void ___4208(); void ___1756(size_t* ___2405, size_t* ___2404, size_t* ___2406, size_t* ___2407);
  #endif
  #if defined MSWIN && defined _DEBUG && defined TRACK_MEMORY_USAGE
 template <typename T> inline T *nonExceptionNew(size_t      ___2810, const char* ___1392, int         lineNumber) { REQUIRE(___2810 > 0); REQUIRE(VALID_REF(___1392)); REQUIRE(lineNumber > 0); T* ___3356 = NULL; try {
@@ -51,7 +54,7 @@ if (___3356 != NULL) {
  #ifdef MSWIN
 ___4205(_msize(___3356));
  #else
-___4205(malloc_usable_size(___3356));
+___4205(malloc_usable_size((void*)___3356));
  #endif
 }
  #endif
@@ -65,7 +68,7 @@ template <typename T> inline void nonExceptionDelete(T* &___3249) { REQUIRE(VALI
  #ifdef MSWIN
 ___4207(_msize(___3249));
  #else
-___4207(malloc_usable_size(___3249));
+___4207(malloc_usable_size((void *)___3249));
  #endif
 } }
  #endif

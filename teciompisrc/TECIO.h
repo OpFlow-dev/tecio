@@ -58,6 +58,17 @@
         CoordSys_Grid3D = 6
     };
 
+    enum FECellShape_e
+    {
+        FECellShape_Bar,
+        FECellShape_Triangle,
+        FECellShape_Quadrilateral,
+        FECellShape_Tetrahedron,
+        FECellShape_Hexahedron,
+        FECellShape_Pyramid,
+        FECellShape_Prism
+    };
+
 #endif
 
 int32_t const FILEFORMAT_PLT = 0;
@@ -76,6 +87,7 @@ int32_t const ZONETYPE_FETETRAHEDRON = 4;
 int32_t const ZONETYPE_FEBRICK = 5;
 int32_t const ZONETYPE_FEPOLYGON = 6;
 int32_t const ZONETYPE_FEPOLYHEDRON = 7;
+int32_t const ZONETYPE_FEMIXED = 8;
 
 /**
  * New TecIO output routines support 64-bit output, all var types except bit, and out-of-order data output.
@@ -101,6 +113,9 @@ EXTERNC tecio_API int32_t tecMPIInitialize(
     void*    fileHandle,
     MPI_Comm communicator,
     int32_t  mainRank);
+EXTERNC tecio_API int32_t tecMPIFileSetInfo(
+    void* fileHandle,
+    MPI_Info info);
 #endif
 
 EXTERNC tecio_API int32_t tecZoneCreateIJK(
@@ -983,6 +998,21 @@ EXTERNC tecio_API int32_t tecZoneGetType(
     int32_t  zone,
     int32_t* type);
 
+EXTERNC tecio_API int32_t tecZoneGetNumSections(
+    void* fileHandle,
+    int32_t zone,
+    int32_t* numSections);
+
+EXTERNC tecio_API int32_t tecZoneGetSectionMetrics(
+    void*   fileHandle,
+    int32_t zone,
+    int32_t section,
+    int32_t* cellShape,
+    int32_t* gridOrder,
+    int32_t* basisFunction,
+    int64_t* numElemsInSection,
+    int32_t* numNodesPerCell);
+
 EXTERNC tecio_API int32_t tecZoneIsEnabled(
     void*   fileHandle,
     int32_t  zone,
@@ -1005,6 +1035,13 @@ EXTERNC tecio_API int32_t tecZoneNodeMapGet64(
 EXTERNC tecio_API int32_t tecZoneNodeMapGetNumValues(
     void*    fileHandle,
     int32_t  zone,
+    int64_t  numCells,
+    int64_t* numValues);
+
+EXTERNC tecio_API int32_t tecZoneSectionNodeMapGetNumValues(
+    void*    fileHandle,
+    int32_t  zone,
+    int32_t  section,
     int64_t  numCells,
     int64_t* numValues);
 

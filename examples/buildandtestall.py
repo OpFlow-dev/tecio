@@ -18,7 +18,7 @@ for filename in [results_summary_filename, build_detail_filename, execution_deta
     if os.path.isfile(filename):
         os.remove(filename)
 
-data_filename_pattern = re.compile('\.s?z?plt$')
+data_filename_pattern = re.compile('.s?z?plt$')
 for root, dirs, files in os.walk('.'):
     for f in files:
         if data_filename_pattern.search(f):
@@ -185,8 +185,8 @@ with open(results_summary_filename, 'w') as results_summary_file, \
                 # then rename the output files with a -mpi suffix to keep them separate from the
                 # subsequent non-mpi runs.
                 #
-                solution_pattern = re.compile('\.sln$')
-                fortran_solution_pattern = re.compile('f9?0?\.sln$')
+                solution_pattern = re.compile('.sln$')
+                fortran_solution_pattern = re.compile('f9?0?.sln$')
                 if (mpifortran_available or mpicpp_available) and (('partitioned' in dir) or ('ijkmany' in dir)):
                     result = 0
                     if platform.system() == 'Windows':
@@ -204,7 +204,7 @@ with open(results_summary_filename, 'w') as results_summary_file, \
                         results_summary_file.write('Passed\n')
                         runit('{}'.format(dir), True, mpi_execution_detail_file, results_summary_file)
                         runit('{}f90'.format(dir), True, mpi_execution_detail_file, results_summary_file)
-                        plt_pattern = re.compile('\.s?z?plt$')
+                        plt_pattern = re.compile('.s?z?plt$')
                         for file in os.listdir('.'):
                             if plt_pattern.search(file):
                                 bname, extension = os.path.splitext(file)
@@ -238,7 +238,7 @@ with open(results_summary_filename, 'w') as results_summary_file, \
         # Don't rewrite solution files.
         #
         szplt_files = []
-        szplt_pattern = re.compile('\.szplt$')
+        szplt_pattern = re.compile('.szplt$')
         for root, dirs, files in os.walk('.'):
             for f in files:
                 if szplt_pattern.search(f) and not 'solution' in f:
@@ -259,9 +259,10 @@ with open(results_summary_filename, 'w') as results_summary_file, \
                     error_code = subprocess.call([rewriteszl_exe, file, out_file], stdout=execution_detail_file, stderr=execution_detail_file)
                     print_result_to_summary_file(results_summary_file, error_code)
     
-        print('results summary is in:  {}'.format(results_summary_filename))
-        print('building summary is in: {}'.format(build_detail_filename))
-        print('execution detail is in: {}'.format(execution_detail_filename))
+        print('results summary is in:      {}'.format(results_summary_filename))
+        print('building summary is in:     {}'.format(build_detail_filename))
+        print('execution detail is in:     {}'.format(execution_detail_filename))
+        print('MPI execution detail is in: {}'.format(mpi_execution_detail_filename))
     else:
         print('{} is not a complete/valid tecplot home directory'.format(tecplot_home_dir))
 

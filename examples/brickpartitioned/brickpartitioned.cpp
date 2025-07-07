@@ -98,13 +98,39 @@ static INTEGER4 initializeFile(
     }
 
     #if defined TECIOMPI
-    {
         if (returnValue == 0)
         {
             INTEGER4 mainRank = 0;
             returnValue = TECMPIINIT142(&mpiComm, &mainRank);
         }
+
+        int commRank;
+        MPI_Comm_rank(mpiComm, &commRank);
+        if (commRank == 0)
+        {
+    #endif
+
+    // Aux data to identify grid variables
+    if (returnValue == 0 && (numSolutionFiles == 0 || fOffset == 0))
+    {
+        int var = 1;
+        returnValue = TECVAUXSTR142(&var, "Grid", "GridX");
+
+        if (returnValue == 0)
+        {
+            var = 2;
+            returnValue = TECVAUXSTR142(&var, "Grid", "GridY");
+        }
+
+        if (returnValue == 0)
+        {
+            var = 3;
+            returnValue = TECVAUXSTR142(&var, "Grid", "GridZ");
+        }
     }
+
+    #if defined TECIOMPI
+        }
     #endif
 
     return returnValue;

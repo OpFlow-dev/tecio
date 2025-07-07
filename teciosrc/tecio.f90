@@ -46,6 +46,16 @@ integer(c_int32_t) function tecMPIInitialize( &
     integer(c_int32_t), value, intent(in) :: mainRank
 end function tecMPIInitialize
 
+integer(c_int32_t) function tecMPIFileSetInfo( &
+    fileHandle, &
+    info) &
+    bind(c, name="tecMPIFileSetInfof")
+    use iso_c_binding
+    implicit none
+    type(c_ptr), value, intent(in)        :: fileHandle
+    integer(c_int32_t), value, intent(in) :: info
+end function tecMPIFileSetInfo
+
 integer(c_int32_t) function tecZoneCreateIJK( &
     fileHandle, &
     zoneTitle, &
@@ -2077,6 +2087,40 @@ integer(c_int32_t) function tecZoneGetType( &
   integer(c_int32_t), intent(out)       :: type
 end function tecZoneGetType
 
+integer(c_int32_t) function tecZoneGetNumSections( &
+  fileHandle, &
+  zone, &
+  numSections) &
+  bind (c, name="tecZoneGetNumSections")
+  use iso_c_binding
+  implicit none
+  type(c_ptr), value, intent(in)        :: fileHandle
+  integer(c_int32_t), value, intent(in) :: zone
+  integer(c_int32_t), intent(out)       :: numSections
+end function tecZoneGetNumSections
+
+integer(c_int32_t) function tecZoneGetSectionMetrics( &
+  fileHandle, &
+  zone, &
+  section, &
+  cellShape, &
+  gridOrder, &
+  basisFunction, &
+  numElemsInSection, &
+  numNodesPerCell) &
+  bind (c, name="tecZoneGetSectionMetrics")
+  use iso_c_binding
+  implicit none
+  type(c_ptr), value, intent(in)        :: fileHandle
+  integer(c_int32_t), value, intent(in) :: zone
+  integer(c_int32_t), value, intent(in) :: section
+  integer(c_int32_t), intent(out)       :: cellShape
+  integer(c_int32_t), intent(out)       :: gridOrder
+  integer(c_int32_t), intent(out)       :: basisFunction
+  integer(c_int64_t), intent(out)       :: numElemsInSection
+  integer(c_int32_t), intent(out)       :: numNodesPerCell
+end function tecZoneGetSectionMetrics
+
 integer(c_int32_t) function tecZoneIsEnabled( &
   fileHandle, &
   zone, &
@@ -2134,6 +2178,22 @@ integer(c_int32_t) function tecZoneNodeMapGetNumValues( &
   integer(c_int64_t), value, intent(in) :: numCells
   integer(c_int64_t), intent(out)       :: numValues
 end function tecZoneNodeMapGetNumValues
+
+integer(c_int32_t) function tecZoneSectionNodeMapGetNumValues( &
+  fileHandle, &
+  zone, &
+  section, &
+  numCells, &
+  numValues) &
+  bind (c, name="tecZoneSectionNodeMapGetNumValues")
+  use iso_c_binding
+  implicit none
+  type(c_ptr), value, intent(in)        :: fileHandle
+  integer(c_int32_t), value, intent(in) :: zone
+  integer(c_int32_t), value, intent(in) :: section
+  integer(c_int64_t), value, intent(in) :: numCells
+  integer(c_int64_t), intent(out)       :: numValues
+end function tecZoneSectionNodeMapGetNumValues
 
 integer(c_int32_t) function tecZoneNodeMapIs64Bit( &
   fileHandle, &
@@ -2889,6 +2949,30 @@ integer(c_int32_t) function tecfeptn142( &
   integer(c_int32_t), intent(in) :: ngcells
   integer(c_int32_t), intent(in) :: gcells(*)
 end function tecfeptn142
+
+integer(c_int32_t) function tecfemixedptn142( &
+  partition, &
+  numnodes, &
+  numcellspersection, &
+  ngnodes, &
+  gnodes, &
+  gnpartitions, &
+  gnpnodes, &
+  ngcellspersection, &
+  gcells) &
+  bind (c, name="tecfemixedptn142")
+  use iso_c_binding
+  implicit none
+  integer(c_int32_t), intent(in) :: partition
+  integer(c_int32_t), intent(in) :: numnodes
+  integer(c_int32_t), intent(in) :: numcellspersection(*)
+  integer(c_int32_t), intent(in) :: ngnodes
+  integer(c_int32_t), intent(in) :: gnodes(*)
+  integer(c_int32_t), intent(in) :: gnpartitions(*)
+  integer(c_int32_t), intent(in) :: gnpnodes(*)
+  integer(c_int32_t), intent(in) :: ngcellspersection(*)
+  integer(c_int32_t), intent(in) :: gcells(*)
+end function tecfemixedptn142
 
 integer(c_int32_t) function tecijkptn142( &
   partition, &
