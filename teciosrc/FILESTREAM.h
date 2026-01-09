@@ -8,5 +8,5 @@
  #else
  #  define EXTERN extern
  #endif
-struct ___1403 { FILE      *File; ___372  ___2005; }; EXTERN ___1403 *___1400(FILE      *File, ___372  ___2005); EXTERN void ___1401(___1403 **___1399);
+struct ___1403 { FILE      *File; ___372  ___2006; }; EXTERN ___1403 *___1400(FILE      *File, ___372  ___2006); EXTERN void ___1401(___1403 **___1399);
  #endif

@@ -117,14 +117,14 @@ typedef int64_t   intmax_t; typedef uint64_t  uintmax_t;
  #define WINT_MAX  _UI16_MAX
  #endif 
  #if !defined(__cplusplus) || defined(__STDC_CONSTANT_MACROS) 
- #define INT8_C(___4296)  ___4296##i8
- #define INT16_C(___4296) ___4296##i16
- #define INT32_C(___4296) ___4296##i32
- #define INT64_C(___4296) ___4296##i64
- #define UINT8_C(___4296)  ___4296##ui8
- #define UINT16_C(___4296) ___4296##ui16
- #define UINT32_C(___4296) ___4296##ui32
- #define UINT64_C(___4296) ___4296##ui64
+ #define INT8_C(___4299)  ___4299##i8
+ #define INT16_C(___4299) ___4299##i16
+ #define INT32_C(___4299) ___4299##i32
+ #define INT64_C(___4299) ___4299##i64
+ #define UINT8_C(___4299)  ___4299##ui8
+ #define UINT16_C(___4299) ___4299##ui16
+ #define UINT32_C(___4299) ___4299##ui32
+ #define UINT64_C(___4299) ___4299##ui64
  #if defined INTMAX_C
  #undef INTMAX_C
  #endif
@@ -154,9 +154,9 @@ typedef int64_t   intmax_t; typedef uint64_t  uintmax_t;
  #endif
 typedef int32_t ___1170;
  #ifdef INDEX_16_BIT
-typedef  int16_t         ___2225;
+typedef  int16_t         ___2226;
  #else
-typedef  int64_t         ___2225;
+typedef  int64_t         ___2226;
  #endif
 static int const InvalidEnumValue = 255; typedef long long lldfmt_t; typedef unsigned long long llufmt_t;
  #endif

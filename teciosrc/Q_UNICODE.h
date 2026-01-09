@@ -8,9 +8,9 @@
  #else
  #define EXTERN extern
  #endif
-namespace tecplot { EXTERN ___372 ___2071(uint8_t ch); EXTERN ___372 ___2070(uint8_t ch); EXTERN ___372 ___2069(uint8_t ch); EXTERN ___372 ___2049(wchar_t wChar); EXTERN void ___490(); EXTERN ___372 ___2035(const char *S); EXTERN ___372 ___2035(tecplot::___4216 ___4227); EXTERN ___372 ___2014(const char *S); EXTERN ___372 ___2014(tecplot::___4216 S); EXTERN ___372 ___2014(const wchar_t* S);
+namespace tecplot { EXTERN ___372 ___2072(uint8_t ch); EXTERN ___372 ___2071(uint8_t ch); EXTERN ___372 ___2070(uint8_t ch); EXTERN ___372 ___2050(wchar_t wChar); EXTERN void ___490(); EXTERN ___372 ___2036(const char *S); EXTERN ___372 ___2036(tecplot::___4219 ___4230); EXTERN ___372 ___2015(const char *S); EXTERN ___372 ___2015(tecplot::___4219 S); EXTERN ___372 ___2015(const wchar_t* S);
  #if defined MSWIN
-EXTERN std::string  ___2321(std::string& ___3810); EXTERN void ___2622(); EXTERN char *getenv(const char *str);
+EXTERN std::string  ___2324(std::string& ___3813); EXTERN void ___2625(); EXTERN char *getenv(const char *str);
  #endif
 }
  #endif

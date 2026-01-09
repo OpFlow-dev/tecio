@@ -6,43 +6,43 @@
 #include "ThirdPartyHeadersBegin.h"
 #include <string>
 #include "ThirdPartyHeadersEnd.h"
-using std::string; using std::wstring; namespace tecplot { static inline string* createUtf8StringTranslation(string const& str) { string *___3356 = new string(str); ENSURE(VALID_REF(___3356)); return ___3356; }
+using std::string; using std::wstring; namespace tecplot { static inline string* createUtf8StringTranslation(string const& str) { string *___3359 = new string(str); ENSURE(VALID_REF(___3359)); return ___3359; }
  #if defined MSWIN
-static inline wstring* createWideStringTranslation(string const& str) { wstring *___3356 = new wstring; *___3356 = utf8ToWideString(str.c_str()); ENSURE(VALID_REF(___3356)); return ___3356; }
+static inline wstring* createWideStringTranslation(string const& str) { wstring *___3359 = new wstring; *___3359 = utf8ToWideString(str.c_str()); ENSURE(VALID_REF(___3359)); return ___3359; }
  #endif
  #if defined MSWIN
-static inline wstring* createWideString(___4216::___2503 ___2502, string const&          str) { REQUIRE(___2502 == ___4216::___1102 || ___2502 == ___4216::___1096); wstring* ___3356; if (___2502 == ___4216::___1102) ___3356 = createWideStringTranslation(str); else ___3356 = new wstring(utf8ToWideString(str.c_str())); return ___3356; }
+static inline wstring* createWideString(___4219::___2506 ___2505, string const&          str) { REQUIRE(___2505 == ___4219::___1102 || ___2505 == ___4219::___1096); wstring* ___3359; if (___2505 == ___4219::___1102) ___3359 = createWideStringTranslation(str); else ___3359 = new wstring(utf8ToWideString(str.c_str())); return ___3359; }
  #endif
-void ___4216::___1930(___4216::___2503 ___2502, char const*            str, char const*            ASSERT_ONLY(___4217)) { REQUIRE(___2502 == ___1102 || ___2502 == ___1096); REQUIRE(VALID_REF_OR_NULL(str)); REQUIRE(VALID_REF_OR_NULL(___4217)); ___2491   = ___2502; ___2485 = (str == NULL); if (!___2485) ___2621 = str; ___2664 = NULL;
+void ___4219::___1931(___4219::___2506 ___2505, char const*            str, char const*            ASSERT_ONLY(___4220)) { REQUIRE(___2505 == ___1102 || ___2505 == ___1096); REQUIRE(VALID_REF_OR_NULL(str)); REQUIRE(VALID_REF_OR_NULL(___4220)); ___2494   = ___2505; ___2488 = (str == NULL); if (!___2488) ___2624 = str; ___2667 = NULL;
  #if defined MSWIN
-___2673 = NULL;
+___2676 = NULL;
  #endif
-} ___4216::___4216() { ___1930(___1096, NULL, NULL); ENSURE(this->___2065()); } ___4216 ___4216::___2763() { return ___1095(NULL); } ___4216::___4216(___4216::___2503 ___2502, char const*            str, char const*            ___4217) { REQUIRE(___2502 == ___1102 || ___2502 == ___1096); REQUIRE(VALID_REF_OR_NULL(str)); REQUIRE(VALID_REF_OR_NULL(___4217)); ___1930(___2502, str, ___4217); ENSURE(this->___2065()); } ___4216::~___4216() { delete ___2664;
+} ___4219::___4219() { ___1931(___1096, NULL, NULL); ENSURE(this->___2066()); } ___4219 ___4219::___2766() { return ___1095(NULL); } ___4219::___4219(___4219::___2506 ___2505, char const*            str, char const*            ___4220) { REQUIRE(___2505 == ___1102 || ___2505 == ___1096); REQUIRE(VALID_REF_OR_NULL(str)); REQUIRE(VALID_REF_OR_NULL(___4220)); ___1931(___2505, str, ___4220); ENSURE(this->___2066()); } ___4219::~___4219() { delete ___2667;
  #if defined MSWIN
-delete ___2673;
+delete ___2676;
  #endif
 }
  #if !defined NO_ASSERTS
-bool ___4216::___2065() const { ___476(IMPLICATION(___2485, ___2621.length() == 0));
+bool ___4219::___2066() const { ___476(IMPLICATION(___2488, ___2624.length() == 0));
  #if 0
-___476(IMPLICATION(___2485, ___2491 == ___1096));
+___476(IMPLICATION(___2488, ___2494 == ___1096));
  #endif
 return true; }
  #endif
-bool ___4216::___2033() const { INVARIANT(this->___2065()); return ___2485; } bool ___4216::___2034() const { INVARIANT(this->___2065()); return ___2485 || ___2621.length() == 0; } char const* ___4216::c_str() const { INVARIANT(this->___2065()); char const* ___3356 = NULL; if (!___2033()) { if (___2491 == ___1102) { if (___2664 == NULL) ___2664 = createUtf8StringTranslation(___2621); ___3356 = ___2664->c_str(); } else ___3356 = ___2621.c_str(); } ENSURE(___3356 == NULL || VALID_REF(___3356)); return ___3356; }
+bool ___4219::___2034() const { INVARIANT(this->___2066()); return ___2488; } bool ___4219::___2035() const { INVARIANT(this->___2066()); return ___2488 || ___2624.length() == 0; } char const* ___4219::c_str() const { INVARIANT(this->___2066()); char const* ___3359 = NULL; if (!___2034()) { if (___2494 == ___1102) { if (___2667 == NULL) ___2667 = createUtf8StringTranslation(___2624); ___3359 = ___2667->c_str(); } else ___3359 = ___2624.c_str(); } ENSURE(___3359 == NULL || VALID_REF(___3359)); return ___3359; }
  #if defined MSWIN && !defined MAKEARCHIVE
-wchar_t const* ___4216::___796() const { INVARIANT(this->___2065()); wchar_t const* ___3356 = NULL; if (!___2033()) { if (___2673 == NULL) ___2673 = createWideString(___2491, ___2621); ___3356 = ___2673->c_str(); } ENSURE(___3356 == NULL || VALID_REF(___3356)); return ___3356; }
+wchar_t const* ___4219::___796() const { INVARIANT(this->___2066()); wchar_t const* ___3359 = NULL; if (!___2034()) { if (___2676 == NULL) ___2676 = createWideString(___2494, ___2624); ___3359 = ___2676->c_str(); } ENSURE(___3359 == NULL || VALID_REF(___3359)); return ___3359; }
  #endif
-___4216::operator string() { INVARIANT(this->___2065()); REQUIRE(!___2033()); string* ___3356; if (___2491 == ___1102) { if (___2664 == NULL) ___2664 = createUtf8StringTranslation(___2621); ___3356 = ___2664; } else ___3356 = &___2621; return *___3356; }
+___4219::operator string() { INVARIANT(this->___2066()); REQUIRE(!___2034()); string* ___3359; if (___2494 == ___1102) { if (___2667 == NULL) ___2667 = createUtf8StringTranslation(___2624); ___3359 = ___2667; } else ___3359 = &___2624; return *___3359; }
  #if defined MSWIN && !defined MAKEARCHIVE
-___4216::operator wstring() { INVARIANT(this->___2065()); REQUIRE(!___2033()); if (___2673 == NULL) ___2673 = createWideString(___2491, ___2621); return *___2673; }
+___4219::operator wstring() { INVARIANT(this->___2066()); REQUIRE(!___2034()); if (___2676 == NULL) ___2676 = createWideString(___2494, ___2624); return *___2676; }
  #endif
-___4216& ___4216::operator=(___4216 const& ___2886) { REQUIRE(___2886.___2065()); if (this != &___2886) { ___2491       = ___2886.___2491; ___2485     = ___2886.___2485; ___2621     = ___2886.___2621; delete ___2664; ___2664 = (___2886.___2664 != NULL ? new string(*___2886.___2664) : NULL);
+___4219& ___4219::operator=(___4219 const& ___2889) { REQUIRE(___2889.___2066()); if (this != &___2889) { ___2494       = ___2889.___2494; ___2488     = ___2889.___2488; ___2624     = ___2889.___2624; delete ___2667; ___2667 = (___2889.___2667 != NULL ? new string(*___2889.___2667) : NULL);
  #if defined MSWIN
-delete ___2673; ___2673 = (___2886.___2673 != NULL ? new wstring(*___2886.___2673) : NULL);
+delete ___2676; ___2676 = (___2889.___2676 != NULL ? new wstring(*___2889.___2676) : NULL);
  #endif
-} ENSURE(this->___2065()); return *this; } ___4216::___4216(___4216 const& ___2886) { REQUIRE(___2886.___2065()); ___2491       = ___2886.___2491; ___2485     = ___2886.___2485; ___2621     = ___2886.___2621; ___2664 = (___2886.___2664 != NULL ? new string(*___2886.___2664) : NULL);
+} ENSURE(this->___2066()); return *this; } ___4219::___4219(___4219 const& ___2889) { REQUIRE(___2889.___2066()); ___2494       = ___2889.___2494; ___2488     = ___2889.___2488; ___2624     = ___2889.___2624; ___2667 = (___2889.___2667 != NULL ? new string(*___2889.___2667) : NULL);
  #if defined MSWIN
-___2673 = (___2886.___2673 != NULL ? new wstring(*___2886.___2673) : NULL);
+___2676 = (___2889.___2676 != NULL ? new wstring(*___2889.___2676) : NULL);
  #endif
-ENSURE(this->___2065()); } ___4216 ___4216::___4215(char const* str, char const* ___4217) { REQUIRE(VALID_REF_OR_NULL(str)); REQUIRE(VALID_REF_OR_NULL(___4217)); return ___4216(___1102, str, ___4217); } ___4216 ___4216::___1095(char const* str) { REQUIRE(VALID_REF_OR_NULL(str)); return ___4216(___1096, str, NULL); } }
+ENSURE(this->___2066()); } ___4219 ___4219::___4218(char const* str, char const* ___4220) { REQUIRE(VALID_REF_OR_NULL(str)); REQUIRE(VALID_REF_OR_NULL(___4220)); return ___4219(___1102, str, ___4220); } ___4219 ___4219::___1095(char const* str) { REQUIRE(VALID_REF_OR_NULL(str)); return ___4219(___1096, str, NULL); } }

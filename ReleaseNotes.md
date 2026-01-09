@@ -1,5 +1,9 @@
 # Updates & Features
 
+## v2025r2
+
+* CMake compatibility updated to versions 3.10 through 4.1.
+
 ## v2024r1m1
 
 * Added TecIO-MPI capability to supply MPI File Info when opening a file.

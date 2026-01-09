@@ -11,17 +11,17 @@
  #if defined(_WIN32)
 #include "UnicodeStringUtils.h"
  #endif
-namespace tecplot { namespace filesystem { FILE* fileOpen(std::string const& ___1392, std::string const& ___2502) { REQUIRE(!___1392.empty()); REQUIRE(!___2502.empty());
+namespace tecplot { namespace filesystem { FILE* fileOpen(std::string const& ___1392, std::string const& ___2505) { REQUIRE(!___1392.empty()); REQUIRE(!___2505.empty());
  #if defined(_WIN32)
-return _wfopen(tecplot::utf8ToWideString(___1392).c_str(), tecplot::utf8ToWideString(___2502).c_str());
+return _wfopen(tecplot::utf8ToWideString(___1392).c_str(), tecplot::utf8ToWideString(___2505).c_str());
  #else
-return fopen(___1392.c_str(), ___2502.c_str());
+return fopen(___1392.c_str(), ___2505.c_str());
  #endif
-} FILE* fileReopen(std::string const& ___1392, std::string const& ___2502, FILE* file) { REQUIRE(!___1392.empty()); REQUIRE(!___2502.empty()); REQUIRE(VALID_REF(file));
+} FILE* fileReopen(std::string const& ___1392, std::string const& ___2505, FILE* file) { REQUIRE(!___1392.empty()); REQUIRE(!___2505.empty()); REQUIRE(VALID_REF(file));
  #if defined(_WIN32)
-return _wfreopen(tecplot::utf8ToWideString(___1392).c_str(), tecplot::utf8ToWideString(___2502).c_str(), file);
+return _wfreopen(tecplot::utf8ToWideString(___1392).c_str(), tecplot::utf8ToWideString(___2505).c_str(), file);
  #else
-return freopen(___1392.c_str(), ___2502.c_str(), file);
+return freopen(___1392.c_str(), ___2505.c_str(), file);
  #endif
 } int fileRename(std::string const& ___1392, std::string const& newFileName) { REQUIRE(!___1392.empty()); REQUIRE(!newFileName.empty());
  #if defined(_WIN32)
@@ -35,13 +35,13 @@ return _wremove(tecplot::utf8ToWideString(___1392).c_str());
  #else
 return remove(___1392.c_str());
  #endif
-} bool fileSize(char const* ___1392, uint64_t&   sizeResult) { bool ___3356 = false;
+} bool fileSize(char const* ___1392, uint64_t&   sizeResult) { bool ___3359 = false;
  #if defined(_WIN32)
 struct _stat64 s; int statResult = _wstati64(tecplot::utf8ToWideString(___1392).c_str(), &s);
  #else
 struct stat s; int statResult = stat(___1392, &s);
  #endif
-if (statResult == 0) { ___3356 = true; sizeResult = static_cast<uint64_t>(s.st_size); } return ___3356; } bool fileSize(std::string const& ___1392, uint64_t&          sizeResult) { return fileSize(___1392.c_str(), sizeResult); } std::string homeDirectory() { std::string homedir; char const* home = std::getenv("HOME"); if (home && std::strlen(home)) { homedir = home; }
+if (statResult == 0) { ___3359 = true; sizeResult = static_cast<uint64_t>(s.st_size); } return ___3359; } bool fileSize(std::string const& ___1392, uint64_t&          sizeResult) { return fileSize(___1392.c_str(), sizeResult); } std::string homeDirectory() { std::string homedir; char const* home = std::getenv("HOME"); if (home && std::strlen(home)) { homedir = home; }
  #if defined(_WIN32)
 else { home = std::getenv("USERPROFILE"); if (home && std::strlen(home)) { homedir = home; } else { char const* hdrive = std::getenv("HOMEDRIVE"); if(!(hdrive && std::strlen(hdrive))) { hdrive = "C:\\"; } char const* hpath = std::getenv("HOMEPATH"); if (hpath && std::strlen(hpath)) { homedir = std::string(hdrive) + hpath; } } }
  #endif
@@ -66,6 +66,6 @@ homedir = std::string("/Users/") + user;
  #endif
 ); }
  #if !defined(NO_THIRD_PARTY_LIBS)
-boost::filesystem::path makeAbsolute(boost::filesystem::path const& path, boost::filesystem::path const& basePath) { REQUIRE(!path.empty()); REQUIRE(!basePath.empty()); REQUIRE(boost::filesystem::is_directory(basePath)); return path.is_absolute() ? path : basePath / path; } std::pair<boost::filesystem::file_status,boost::system::error_code> fileStatus( boost::filesystem::path const& filePath, bool                           resolveSymlinks) { boost::system::error_code errorCode{}; auto const fileStatus{resolveSymlinks ? boost::filesystem::status(filePath, errorCode) : boost::filesystem::symlink_status(filePath, errorCode) }; return {fileStatus,errorCode}; } bool fileExists(boost::filesystem::path const& filePath) { REQUIRE("filepath can be valid or empty"); auto const& [status,errorCode] = fileStatus(filePath, true); return !errorCode && boost::filesystem::exists(status) && !boost::filesystem::is_directory(status); } bool dirExists(boost::filesystem::path const& dirPath) { REQUIRE("dirpath can be anything - including empty"); auto const& [status,errorCode] = fileStatus(dirPath, true); return !errorCode && boost::filesystem::exists(status) && boost::filesystem::is_directory(status); } bool isFileOrDirWritable(boost::filesystem::path const& path) { auto const isFileReadWritable{[](boost::filesystem::path filePath, bool ___3331){ auto filename{filePath.make_preferred().string()}; auto* ___1479{fileOpen(filename, "a+")}; bool const isReadWritable{___1479 != nullptr}; if (isReadWritable) fclose(___1479); if (___3331) (void)std::remove(filename.c_str()); return isReadWritable; }}; auto const& [pathStatus,pathErrorCode]{fileStatus(path, true)}; if (!pathErrorCode && boost::filesystem::exists(pathStatus)) { if (boost::filesystem::is_directory(pathStatus)) { boost::system::error_code uniquePathErrorCode{}; auto const tempFilePath{boost::filesystem::unique_path( path/"%%%%-%%%%-%%%%-%%%%", uniquePathErrorCode)}; return !uniquePathErrorCode && isFileReadWritable(tempFilePath, true); } else { return isFileReadWritable(path, false); } } else { return isFileReadWritable(path, true); } }
+boost::filesystem::path makeAbsolute(boost::filesystem::path const& path, boost::filesystem::path const& basePath) { REQUIRE(!path.empty()); REQUIRE(!basePath.empty()); REQUIRE(boost::filesystem::is_directory(basePath)); return path.is_absolute() ? path : basePath / path; } std::pair<boost::filesystem::file_status,boost::system::error_code> fileStatus( boost::filesystem::path const& filePath, bool                           resolveSymlinks) { boost::system::error_code errorCode{}; auto const fileStatus{resolveSymlinks ? boost::filesystem::status(filePath, errorCode) : boost::filesystem::symlink_status(filePath, errorCode) }; return {fileStatus,errorCode}; } bool fileExists(boost::filesystem::path const& filePath) { REQUIRE("filepath can be valid or empty"); auto const& [status,errorCode] = fileStatus(filePath, true); return !errorCode && boost::filesystem::exists(status) && !boost::filesystem::is_directory(status); } bool dirExists(boost::filesystem::path const& dirPath) { REQUIRE("dirpath can be anything - including empty"); auto const& [status,errorCode] = fileStatus(dirPath, true); return !errorCode && boost::filesystem::exists(status) && boost::filesystem::is_directory(status); } bool isFileOrDirWritable(boost::filesystem::path const& path) { auto const isFileReadWritable{[](boost::filesystem::path filePath, bool ___3334){ auto filename{filePath.make_preferred().string()}; auto* ___1479{fileOpen(filename, "a+")}; bool const isReadWritable{___1479 != nullptr}; if (isReadWritable) fclose(___1479); if (___3334) (void)std::remove(filename.c_str()); return isReadWritable; }}; auto const& [pathStatus,pathErrorCode]{fileStatus(path, true)}; if (!pathErrorCode && boost::filesystem::exists(pathStatus)) { if (boost::filesystem::is_directory(pathStatus)) { boost::system::error_code uniquePathErrorCode{}; auto const tempFilePath{boost::filesystem::unique_path( path/"%%%%-%%%%-%%%%-%%%%", uniquePathErrorCode)}; return !uniquePathErrorCode && isFileReadWritable(tempFilePath, true); } else { return isFileReadWritable(path, false); } } else { return isFileReadWritable(path, true); } }
  #endif
 }}

@@ -102,7 +102,8 @@ else:
 # Disable Infiniband for MPI apps to avoid warning messages--
 # instruct OpenMPI's Modular Component Architecture's Byte Transfer Layer
 # to use all available transports except InfiniBand:
-os.environ['OMPI_MCA_btl'] = '^openib'
+os.environ['OMPI_MCA_btl'] = 'tcp,self'
+os.environ['OMPI_MCA_pml'] = 'ob1'
 
 def print_running(execution_detail_file, results_summary_file, exename, executable, isMPI, arg=None):
     if os.path.isfile(executable) and os.access(executable, os.X_OK) and ((not isMPI) or mpiexec_available):

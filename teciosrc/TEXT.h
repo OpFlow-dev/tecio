@@ -1,13 +1,16 @@
  #pragma once
 #include "ThirdPartyHeadersBegin.h"
-#include <map>
-#include <utility>
+#include <functional>
+#include <memory>
+#include <span>
+#include <string>
+#include <vector>
 #include "ThirdPartyHeadersEnd.h"
  #define _TEXT_H_INCLUDED
- #define VALID_TEXT_COORDSYS(___3918)  (((___3918)==CoordSys_Frame)||((___3918)==CoordSys_Grid)||((___3918)==CoordSys_Grid3D))
- #define VALID_TEXT_UNITS(___4264)  (((___4264)==___4267)||((___4264)==___4266)||((___4264)==___4269))
- #define VALID_TEXT_COORDSYS_AND_UNITS(___3169, ___3600) \
- ( VALID_TEXT_COORDSYS((___3169)) && \
- VALID_TEXT_UNITS((___3600)) && \
- ! ((___3169) == CoordSys_Frame && (___3600) == ___4267) )
- #define VALID_FONT_SIZEUNITS(___4264)  (((___4264)==___4267)||((___4264)==___4266)||((___4264)==___4269)||(___4264)==___4265)
+ #define VALID_TEXT_COORDSYS(___3921)  (((___3921)==CoordSys_Frame)||((___3921)==CoordSys_Grid)||((___3921)==CoordSys_Grid3D))
+ #define VALID_TEXT_UNITS(___4267)  (((___4267)==___4270)||((___4267)==___4269)||((___4267)==___4272))
+ #define VALID_TEXT_COORDSYS_AND_UNITS(___3172, ___3603) \
+ ( VALID_TEXT_COORDSYS((___3172)) && \
+ VALID_TEXT_UNITS((___3603)) && \
+ ! ((___3172) == CoordSys_Frame && (___3603) == ___4270) )
+ #define VALID_FONT_SIZEUNITS(___4267)  (((___4267)==___4270)||((___4267)==___4269)||((___4267)==___4272)||(___4267)==___4268)

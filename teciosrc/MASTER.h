@@ -85,9 +85,9 @@
  #endif 
  #endif 
  #if _MSC_VER >= 1400
- #define ___4441 
+ #define ___4444 
  #endif
- #if !defined TECPLOTKERNEL && defined ___4441
+ #if !defined TECPLOTKERNEL && defined ___4444
  #if !defined _CRT_SECURE_NO_DEPRECATE
  #define _CRT_SECURE_NO_DEPRECATE
  #endif
@@ -108,35 +108,35 @@
  #endif
  #endif
  #ifdef NO_ASSERTS 
- #define ___3585 ___1527
- #define ___3231
+ #define ___3588 ___1527
+ #define ___3234
  #endif 
 #include "TranslatedString.h"
- #define ___4279
+ #define ___4282
  #ifndef THREED
  #  define THREED
  #endif
 #include <stdio.h>
 #include <ctype.h>
 #include <math.h>
- #if defined ___3258
+ #if defined ___3261
  #define ___959
  #endif
- #if defined ___2465
+ #if defined ___2468
  #define ___1098
  #endif
  #if defined CRAYX
  #define CRAY
  #endif
- #if defined ___1993
- #define ___1992
+ #if defined ___1994
+ #define ___1993
  #endif
  #if defined HPX
  #define HPUX
- #define ___1829
+ #define ___1830
  #endif
  #if defined IBMRS6000X
- #define ___1831
+ #define ___1832
  #endif
  #if defined COMPAQALPHAX
  #define ___532
@@ -150,39 +150,39 @@
  #if defined DECX
  #define DEC
  #endif
- #if defined ___3890 || defined ___3889
- #define ___3891
+ #if defined ___3893 || defined ___3892
+ #define ___3894
  #endif
- #if defined ___3891
- #define ___3884
+ #if defined ___3894
+ #define ___3887
  #endif
- #if defined ___1993 || defined CRAYX || defined HPX || defined ___3891 || defined ___655
+ #if defined ___1994 || defined CRAYX || defined HPX || defined ___3894 || defined ___655
  #define UNIXX
- #define ___3920
+ #define ___3923
  #endif
  #if defined DECX || defined LINUX || defined IBMRS6000X || defined COMPAQX || defined DARWIN
  #define UNIXX
  #endif
 #include <stdarg.h>
- #define OEM_INVALID_CHECKSUM (___2225) -1
+ #define OEM_INVALID_CHECKSUM (___2226) -1
  #if defined MSWIN
  #define USE_TRUETYPEFONTS
  #endif
  #ifdef MSWIN
- #if defined ___4441
- #define Widget ___2320 
+ #if defined ___4444 && defined ___2323
+typedef ___2323 Widget;
  #else
- #define Widget long
+typedef long Widget;
  #endif
  #endif 
  #if defined UNIXX
 typedef void *Widget;
  #endif
 #include <string.h>
- #if !defined ___3920 && !defined MSWIN
+ #if !defined ___3923 && !defined MSWIN
 #include <strings.h>
  #endif
- #if defined (___2465)
+ #if defined (___2468)
 #include <stdlib.h>
  #define ___1197
  #ifndef ___1304
@@ -194,7 +194,7 @@ typedef void *Widget;
 #include <stdlib.h>
  #if defined UNIXX
  #define ___1304
- #define ___2688
+ #define ___2691
 #include <unistd.h>
  #endif
  #if defined MSWIN
@@ -266,7 +266,7 @@ typedef void *Widget;
  # define NULL 0
  #endif
  #if defined MSWIN || defined LINUX || defined DARWIN
- #define ___1821
+ #define ___1822
  #endif
  #if defined __GNUC__ && !defined ___1543
  #define ___1543 (__GNUC__ * 10000 + \

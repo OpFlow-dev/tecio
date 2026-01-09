@@ -2,9 +2,9 @@
  #define _TECGLBL_H
 #include "MASTER.h"
 #include "GLOBAL.h"
-extern ___372 ___2026;
+struct ___1519; extern ___372 ___2027;
  #  define MANAGESTATE
- #define ___4037 (___333+1)
+ #define ___4040 (___333+1)
  #define TECUTILINVALIDMAP   (BAD_FIELDMAP_OFFSET+1)
  #define TECUTILINVALIDZONE  (BAD_ZONE_OFFSET+1)
  #define TECUTILINVALIDVAR   (___334+1)

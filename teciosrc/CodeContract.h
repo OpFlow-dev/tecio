@@ -11,7 +11,7 @@
 #include <limits>
 #include "ThirdPartyHeadersEnd.h"
  #define VALID_REF(p)      ((p)  != 0)
- #define VALID_FN_REF(___3000)  ((___3000) != 0)
+ #define VALID_FN_REF(___3003)  ((___3003) != 0)
  #if defined NO_ASSERTS
  #define ASSERT(___1243)
  #define ASSERT_ONLY(___1243)
@@ -23,7 +23,7 @@
  #pragma warning (disable:4505)
  #endif
 #include <assert.h>
-static bool tpReportAssertion( char const* ___2430, char const* srcFileName, int         srcLineNum) { char const* const ___2316 = ::getenv("TP_ASSERT_LOG_FILENAME"); if (___2316 != 0) { FILE* logFile = ::fopen(___2316, "a"); if (logFile != 0) { ::fprintf(logFile, "Assertion failure:\n" "    File:   %s\n" "    Line:   %d\n" "    Reason: %s\n", srcFileName, srcLineNum, ___2430); ::fclose(logFile); } else { assert(!"Failed to log checked build assertion. Check permissions"); } return true; } else { return false; } }
+static bool tpReportAssertion( char const* ___2433, char const* srcFileName, int         srcLineNum) { char const* const ___2319 = ::getenv("TP_ASSERT_LOG_FILENAME"); if (___2319 != 0) { FILE* logFile = ::fopen(___2319, "a"); if (logFile != 0) { ::fprintf(logFile, "Assertion failure:\n" "    File:   %s\n" "    Line:   %d\n" "    Reason: %s\n", srcFileName, srcLineNum, ___2433); ::fclose(logFile); } else { assert(!"Failed to log checked build assertion. Check permissions"); } return true; } else { return false; } }
  #if defined(_MSC_VER)
  #pragma warning (pop)
  #endif
@@ -45,8 +45,8 @@ static bool tpReportAssertion( char const* ___2430, char const* srcFileName, int
  #elif !defined NDEBUG 
  #define VERIFY(___1243) assert(___1243)
  #endif
- #define IMPLICATION(___2892,___3256) (!(___2892) || (___3256))
- #define EQUIVALENCE(___2892,___3256) ((!!(___2892)) == (!!(___3256)))
+ #define IMPLICATION(___2895,___3259) (!(___2895) || (___3259))
+ #define EQUIVALENCE(___2895,___3259) ((!!(___2895)) == (!!(___3259)))
  #define VALID_MAP_KEY(key,map) (map.find(key) != map.end())
  #define VALID_REF_OR_NULL(p)       (VALID_REF(p) || p == 0)
  #define VALID_BOOLEAN(b)           ((b) == 1 || (b) == 0)
@@ -81,12 +81,12 @@ template <typename TargetType, typename SourceType> inline TargetType checked_nu
  #if __cplusplus > 199711L 
 ASSERT_ONLY( tecplot::numeric_cast<TargetType>(value); );
  #endif
-return static_cast<TargetType>(value); } namespace { template<typename TargetType, typename SourceType> struct alias_cast_t { union { SourceType source; TargetType ___3356; }; }; } template<typename TargetType, typename SourceType> TargetType alias_cast(SourceType value) {
+return static_cast<TargetType>(value); } namespace { template<typename TargetType, typename SourceType> struct alias_cast_t { union { SourceType source; TargetType ___3359; }; }; } template<typename TargetType, typename SourceType> TargetType alias_cast(SourceType value) {
  #if __cplusplus > 199711L 
 static_assert(sizeof(TargetType) == sizeof(SourceType), "Cannot cast types of different sizes"); alias_cast_t<TargetType, SourceType> ac {{value}};
  #else
 REQUIRE(sizeof(TargetType) == sizeof(SourceType)); alias_cast_t<TargetType, SourceType> ac; ac.source = value;
  #endif
-return ac.___3356; }
+return ac.___3359; }
  #endif
  #endif 

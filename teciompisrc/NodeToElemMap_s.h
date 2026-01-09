@@ -6,4 +6,4 @@
 #include "GLOBAL.h"
 #include "CodeContract.h"
 #include "NodeMap_s.h"
-namespace tecplot { namespace tecioszl { struct ___2741 { tecplot::___3931::___2716 m_nodeCount; boost::scoped_array<tecplot::___3931::___463> m_elemIndex; boost::scoped_array<tecplot::___3931::___463> m_elem; ___2741(___2728 const& ___2721, tecplot::___3931::___2716 nodeCount); tecplot::___3931::___463 cellCountForNode(tecplot::___3931::___2716 ___2707); }; }}
+namespace tecplot { namespace tecioszl { struct ___2744 { tecplot::___3934::___2719 m_nodeCount; boost::scoped_array<tecplot::___3934::___463> m_elemIndex; boost::scoped_array<tecplot::___3934::___463> m_elem; ___2744(___2731 const& ___2724, tecplot::___3934::___2719 nodeCount); tecplot::___3934::___463 cellCountForNode(tecplot::___3934::___2719 ___2710); }; }}

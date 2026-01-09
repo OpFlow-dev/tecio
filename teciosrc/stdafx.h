@@ -14,7 +14,7 @@
  #if !defined WINVER
  #define WINVER 0x0501  
  #endif
- #define ___22(___3249,___349) ((___3249)!=NULL)
+ #define ___22(___3252,___349) ((___3252)!=NULL)
  #if defined _M_IA64 || defined _M_AMD64
  #define WININT  INT_PTR
  #define WINUINT UINT_PTR
