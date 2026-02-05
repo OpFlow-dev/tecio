@@ -1,0 +1,87 @@
+package:
+  name: tecio
+  version: "2025r2"
+
+source:
+  path: ..
+
+build:
+  number: 0
+  run_exports:
+    - {{ pin_subpackage('tecio', max_pin='x.x') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake >=3.10
+    - make  # [unix]
+  host:
+    - boost >=1.69.0
+    - mpich  # [mpi]
+    - mpi4py  # [mpi]
+  run:
+    - boost >=1.69.0
+    - mpich  # [mpi]
+
+outputs:
+  - name: tecio
+    script: build_tecio.sh  # [unix]
+    script: build_tecio.bat  # [win]
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+        - cmake >=3.10
+        - make  # [unix]
+      host:
+        - boost >=1.69.0
+      run:
+        - boost >=1.69.0
+    test:
+      commands:
+        - test -f ${PREFIX}/lib/libtecio.a  # [unix]
+        - test -f ${PREFIX}/include/tecio/TECIO.h  # [unix]
+        - if not exist %LIBRARY_LIB%\tecio.lib exit 1  # [win]
+        - if not exist %LIBRARY_INC%\tecio\TECIO.h exit 1  # [win]
+
+  - name: tecio-mpi
+    script: build_tecio_mpi.sh  # [unix]
+    script: build_tecio_mpi.bat  # [win]
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+        - cmake >=3.10
+        - make  # [unix]
+      host:
+        - boost >=1.69.0
+        - mpich
+        - mpi4py
+      run:
+        - boost >=1.69.0
+        - mpich
+        - {{ pin_subpackage('tecio', exact=True) }}
+    test:
+      commands:
+        - test -f ${PREFIX}/lib/libteciompi.a  # [unix]
+        - test -f ${PREFIX}/include/tecio/TecioMPI.h  # [unix]
+        - if not exist %LIBRARY_LIB%\teciompi.lib exit 1  # [win]
+        - if not exist %LIBRARY_INC%\tecio\TecioMPI.h exit 1  # [win]
+
+about:
+  home: https://www.tecplot.com/
+  license: Proprietary (Redistributable)
+  license_file: teciosrc/tecio_license_agreement.txt
+  summary: 'TecIO is a library for writing Tecplot data files (.plt and .szplt formats)'
+  description: |
+    TecIO is the library for writing Tecplot binary data files (.plt and .szplt formats).
+    This package provides:
+    - libtecio: Static library for sequential I/O
+    - libteciompi: Static library for MPI-parallel I/O
+    - szcombine: Utility for combining SZL files
+  doc_url: https://www.tecplot.com/documentation/
+
+extra:
+  recipe-maintainers:
+    - conda-forge

@@ -1,0 +1,28 @@
+# TecIO CMake configuration file
+@PACKAGE_INIT@
+
+# Find dependencies
+include(CMakeFindDependencyMacro)
+find_dependency(Boost)
+
+# Set variables
+set(TECIO_FOUND TRUE)
+set(TECIO_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/tecio")
+set(TECIO_LIBRARY "${PACKAGE_PREFIX_DIR}/lib/libtecio.a")
+
+# Create imported target
+if(NOT TARGET tecio::tecio)
+    add_library(tecio::tecio STATIC IMPORTED)
+    set_target_properties(tecio::tecio PROPERTIES
+        IMPORTED_LOCATION "${TECIO_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${TECIO_INCLUDE_DIR}"
+        INTERFACE_COMPILE_DEFINITIONS "TP_PROJECT_USES_BOOST;BOOST_ALL_NO_LIB;MAKEARCHIVE;NO_THIRD_PARTY_LIBS;NO_ASSERTS"
+    )
+    if(UNIX)
+        set_target_properties(tecio::tecio PROPERTIES
+            INTERFACE_LINK_LIBRARIES "pthread"
+        )
+    endif()
+endif()
+
+check_required_components(tecio)

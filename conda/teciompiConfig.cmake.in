@@ -1,0 +1,25 @@
+# TecIO-MPI CMake configuration file
+@PACKAGE_INIT@
+
+# Find dependencies
+include(CMakeFindDependencyMacro)
+find_dependency(Boost)
+find_dependency(MPI)
+
+# Set variables
+set(TECIOMPI_FOUND TRUE)
+set(TECIOMPI_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/tecio")
+set(TECIOMPI_LIBRARY "${PACKAGE_PREFIX_DIR}/lib/libteciompi.a")
+
+# Create imported target
+if(NOT TARGET tecio::teciompi)
+    add_library(tecio::teciompi STATIC IMPORTED)
+    set_target_properties(tecio::teciompi PROPERTIES
+        IMPORTED_LOCATION "${TECIOMPI_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${TECIOMPI_INCLUDE_DIR}"
+        INTERFACE_COMPILE_DEFINITIONS "TP_PROJECT_USES_BOOST;BOOST_ALL_NO_LIB;MAKEARCHIVE;NO_THIRD_PARTY_LIBS;NO_ASSERTS"
+        INTERFACE_LINK_LIBRARIES "MPI::MPI_CXX"
+    )
+endif()
+
+check_required_components(teciompi)
