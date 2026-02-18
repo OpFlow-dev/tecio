@@ -1,0 +1,65 @@
+name: Conda Variants
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conda-variants-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conda-build:
+    name: conda-build (${{ matrix.mpi }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mpi:
+          - mpich
+          - openmpi
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: true
+          channels: conda-forge
+          channel-priority: strict
+          miniconda-version: latest
+
+      - name: Install conda-build
+        shell: bash -el {0}
+        run: conda install -y conda-build
+
+      - name: Build Conda packages
+        shell: bash -el {0}
+        run: |
+          conda build conda \
+            -m conda/conda_build_config.yaml \
+            --variants "{mpi: ${{ matrix.mpi }}}" \
+            -c conda-forge
+
+  required:
+    name: required
+    runs-on: ubuntu-latest
+    needs:
+      - conda-build
+    if: always()
+
+    steps:
+      - name: Enforce all variant builds succeeded
+        run: |
+          if [ "${{ needs.conda-build.result }}" != "success" ]; then
+            echo "Conda variant build failed."
+            exit 1
+          fi
