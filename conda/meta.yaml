@@ -18,11 +18,11 @@ requirements:
     - make  # [unix]
   host:
     - boost >=1.69.0
-    - mpich  # [mpi]
+    - {{ mpi }}  # [mpi]
     - mpi4py  # [mpi]
   run:
     - boost >=1.69.0
-    - mpich  # [mpi]
+    - {{ mpi }}  # [mpi]
 
 outputs:
   - name: tecio
@@ -46,6 +46,8 @@ outputs:
         - if not exist %LIBRARY_INC%\tecio\TECIO.h exit 1  # [win]
 
   - name: tecio-mpi
+    build:
+      string: mpi_{{ mpi }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
     script: build_tecio_mpi.sh  # [unix]
     script: build_tecio_mpi.bat  # [win]
     requirements:
@@ -56,11 +58,11 @@ outputs:
         - make  # [unix]
       host:
         - boost >=1.69.0
-        - mpich
+        - {{ mpi }}
         - mpi4py
       run:
         - boost >=1.69.0
-        - mpich
+        - {{ mpi }}
         - {{ pin_subpackage('tecio', exact=True) }}
     test:
       commands:
