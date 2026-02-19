@@ -47,17 +47,14 @@ jobs:
           conda build conda \
             -m conda/conda_build_config.yaml \
             --variants "{mpi: ${{ matrix.mpi }}}" \
-            -c conda-forge
-
-      - name: Export conda-bld path
-        shell: bash -el {0}
-        run: echo "CONDA_BLD_PATH=$(conda info --base)/conda-bld" >> "$GITHUB_ENV"
+            -c conda-forge \
+            --output-folder "${{ github.workspace }}/conda-bld"
 
       - name: Upload built packages
         uses: actions/upload-artifact@v4
         with:
           name: tecio-mpi-${{ matrix.mpi }}
-          path: ${{ env.CONDA_BLD_PATH }}/**/*.conda
+          path: ${{ github.workspace }}/conda-bld/**/*.conda
           if-no-files-found: error
 
   required:
