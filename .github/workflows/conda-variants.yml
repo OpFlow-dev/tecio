@@ -27,14 +27,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@fc2d68f6413eb2d87b895e92f8584b5b94a10167 # v3.3.0
         with:
-          auto-activate-base: true
+          auto-activate: true
+          activate-environment: base
           channels: conda-forge
           channel-priority: strict
+          conda-remove-defaults: "true"
           miniconda-version: py311_25.11.1-1
 
       - name: Install conda-build
@@ -51,7 +53,7 @@ jobs:
             --output-folder "${{ github.workspace }}/conda-bld"
 
       - name: Upload built packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: tecio-mpi-${{ matrix.mpi }}
           path: ${{ github.workspace }}/conda-bld/**/*.conda
