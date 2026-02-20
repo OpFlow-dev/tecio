@@ -1,0 +1,3 @@
+mpi:
+  - mpich  # [unix]
+  - openmpi  # [unix]
