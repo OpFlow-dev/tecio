@@ -1,0 +1,80 @@
+name: Conda Release Upload
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conda-release-upload-${{ github.event.release.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  conda-release-upload:
+    name: build-and-upload-conda-variants (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-64
+          - os: macos-latest
+            platform: osx-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3.3.0
+        with:
+          auto-activate: true
+          activate-environment: base
+          channels: conda-forge
+          channel-priority: strict
+          conda-remove-defaults: "true"
+          miniconda-version: py311_25.11.1-1
+
+      - name: Install build and upload dependencies
+        shell: bash -el {0}
+        run: conda install -y conda-build=26.1.0 anaconda-client=1.14.1
+
+      - name: Build all Conda variants
+        shell: bash -el {0}
+        run: |
+          set -euo pipefail
+          conda build conda \
+            -m conda/conda_build_config.yaml \
+            -c conda-forge \
+            --no-anaconda-upload \
+            --output-folder "${{ github.workspace }}/conda-bld"
+
+      - name: Upload packages to Anaconda opflow-dev
+        shell: bash -el {0}
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANACONDA_API_TOKEN}" ]; then
+            echo "Missing required secret: ANACONDA_API_TOKEN"
+            exit 1
+          fi
+
+          mapfile -t packages < <(find "${{ github.workspace }}/conda-bld" -type f \( -name "*.conda" -o -name "*.tar.bz2" \))
+          if [ "${#packages[@]}" -eq 0 ]; then
+            echo "No conda packages were built."
+            exit 1
+          fi
+
+          echo "Uploading packages:"
+          printf "  %s\n" "${packages[@]}"
+          anaconda upload \
+            --user opflow-dev \
+            --label main \
+            --skip-existing \
+            "${packages[@]}"
