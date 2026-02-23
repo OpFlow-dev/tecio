@@ -65,16 +65,17 @@ jobs:
             exit 1
           fi
 
-          mapfile -t packages < <(find "${{ github.workspace }}/conda-bld" -type f \( -name "*.conda" -o -name "*.tar.bz2" \))
-          if [ "${#packages[@]}" -eq 0 ]; then
+          package_list="$(mktemp)"
+          find "${{ github.workspace }}/conda-bld" -type f \( -name "*.conda" -o -name "*.tar.bz2" \) -print0 > "${package_list}"
+          if [ ! -s "${package_list}" ]; then
             echo "No conda packages were built."
             exit 1
           fi
 
           echo "Uploading packages:"
-          printf "  %s\n" "${packages[@]}"
-          anaconda upload \
+          tr '\0' '\n' < "${package_list}" | sed 's/^/  /'
+          xargs -0 anaconda upload \
             --user opflow-dev \
             --label main \
             --skip-existing \
-            "${packages[@]}"
+            < "${package_list}"
