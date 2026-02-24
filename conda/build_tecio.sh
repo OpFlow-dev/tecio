@@ -38,10 +38,10 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-configure_file(
+configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/tecioConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/tecioConfig.cmake"
-    COPYONLY
+    INSTALL_DESTINATION lib/cmake/tecio
 )
 
 install(FILES

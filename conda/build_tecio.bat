@@ -38,10 +38,10 @@ echo     VERSION 2025.2^
 echo     COMPATIBILITY AnyNewerVersion^
 echo ^)
 echo.
-echo configure_file^(^
+echo configure_package_config_file^(^
 echo     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/tecioConfig.cmake.in"^
 echo     "${CMAKE_CURRENT_BINARY_DIR}/tecioConfig.cmake"^
-echo     COPYONLY^
+echo     INSTALL_DESTINATION lib/cmake/tecio^
 echo ^)
 echo.
 echo install^(FILES^
